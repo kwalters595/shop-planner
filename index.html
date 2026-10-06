@@ -15,9 +15,6 @@
       --accent-light: #fbbf24;
       --text: #f3f4f6;
       --text-muted: #9ca3af;
-      --grid-line: #2e323b;
-      --grid-major: #3f4452;
-      --wall-color: #4b5563;
       --machinery: #2563eb;
       --storage: #059669;
       --dust: #dc2626;
@@ -25,51 +22,67 @@
       --clearance-border: rgba(251, 191, 36, 0.45);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: -apple-system, sans-serif; }
     body { background-color: var(--bg-main); color: var(--text); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
     header { background-color: var(--bg-panel); border-bottom: 1px solid var(--border-color); padding: 10px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; z-index: 10; }
     .brand { display: flex; align-items: center; gap: 10px; }
-    .brand h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em; color: #fff; }
+    .brand h1 { font-size: 1.1rem; font-weight: 700; color: #fff; }
     .brand .badge { background: rgba(217, 119, 6, 0.18); color: var(--accent-light); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(217, 119, 6, 0.35); }
 
     .header-actions { display: flex; align-items: center; gap: 8px; }
-    button { background: var(--bg-card); color: var(--text); border: 1px solid var(--border-color); border-radius: 6px; padding: 7px 12px; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s ease; }
+    button { background: var(--bg-card); color: var(--text); border: 1px solid var(--border-color); border-radius: 6px; padding: 7px 12px; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.15s; }
     button:hover { background: #373b45; border-color: #555b6a; }
     button.primary { background: var(--accent); border-color: #f59e0b; color: #fff; }
     button.primary:hover { background: var(--accent-hover); }
 
     .app-body { display: flex; flex: 1; height: calc(100vh - 53px); position: relative; }
+    
+    /* SIDEBAR MODIFICATIONS: Absolute positioning for Inventory overlay */
     aside.sidebar { width: 320px; background: var(--bg-panel); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; flex-shrink: 0; z-index: 5; }
     .sidebar-tabs { display: flex; border-bottom: 1px solid var(--border-color); }
-    .tab-btn { flex: 1; padding: 10px; font-size: 0.8rem; text-align: center; background: transparent; border: none; border-radius: 0; border-bottom: 2px solid transparent; color: var(--text-muted); cursor: pointer; }
+    .tab-btn { flex: 1; padding: 10px; font-size: 0.8rem; text-align: center; background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--text-muted); cursor: pointer; }
     .tab-btn.active { color: var(--accent-light); border-bottom-color: var(--accent); font-weight: 600; }
-    .panel-content { padding: 14px; overflow-y: auto; flex: 1; }
+    
+    .panel-content { display: flex; flex-direction: column; flex: 1; overflow: hidden; position: relative; }
+    .scrollable-list { padding: 14px; overflow-y: auto; flex: 1; padding-bottom: 120px; } /* Added padding for fixed form */
 
-    .section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 8px; }
+    .section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
     .tool-list { display: flex; flex-direction: column; gap: 8px; }
-    .tool-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 9px 11px; cursor: pointer; transition: all 0.15s ease; display: flex; flex-direction: column; gap: 4px; }
-    .tool-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .tool-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 9px 11px; cursor: pointer; display: flex; flex-direction: column; gap: 4px; }
+    .tool-card:hover { border-color: var(--accent); }
     .tool-card.on-canvas { border-left: 3px solid var(--accent); }
-    .tool-card-head { display: flex; justify-content: space-between; align-items: center; }
     .tool-title { font-weight: 600; font-size: 0.82rem; color: #fff; }
-    .tool-dim { font-size: 0.75rem; color: var(--text-muted); font-family: monospace; }
     .tool-sub { font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
 
-    .badge-status { display: inline-block; font-size: 0.68rem; padding: 1px 5px; border-radius: 3px; background: #374151; color: #d1d5db; }
-    .status-ordered { background: #065f46; color: #6ee7b7; }
-    .status-bought { background: #1e3a8a; color: #93c5fd; }
-    .status-ready { background: #92400e; color: #fde68a; }
+    /* FLOATING QUICK ADD WIDGET */
+    .floating-add-widget {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(34, 36, 42, 0.95);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--border-color);
+      padding: 12px 14px;
+      z-index: 10;
+      box-shadow: 0 -4px 15px rgba(0,0,0,0.5);
+    }
+    
+    .floating-add-widget input {
+      background: var(--bg-card); border: 1px solid var(--border-color); color: #fff; padding: 6px; border-radius: 4px; font-size: 0.75rem;
+    }
+    .floating-add-widget input:focus { outline: none; border-color: var(--accent); }
 
     .viewport { flex: 1; overflow: hidden; position: relative; background-color: #121316; display: flex; align-items: center; justify-content: center; }
     #shopCanvas { box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6); border-radius: 4px; cursor: crosshair; }
 
-    .canvas-overlay-controls { position: absolute; bottom: 20px; right: 20px; background: rgba(34, 36, 42, 0.9); backdrop-filter: blur(8px); padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; gap: 6px; box-shadow: 0 6px 16px rgba(0,0,0,0.4); }
-    .canvas-legend { position: absolute; top: 16px; left: 16px; background: rgba(34, 36, 42, 0.85); backdrop-filter: blur(6px); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.74rem; display: flex; flex-direction: column; gap: 4px; pointer-events: none; }
+    .canvas-overlay-controls { position: absolute; bottom: 20px; right: 20px; background: rgba(34, 36, 42, 0.9); padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; gap: 6px; }
+    .canvas-legend { position: absolute; top: 16px; left: 16px; background: rgba(34, 36, 42, 0.85); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.74rem; display: flex; flex-direction: column; gap: 4px; pointer-events: none; }
     .legend-row { display: flex; align-items: center; gap: 8px; }
     .legend-box { width: 12px; height: 12px; border-radius: 2px; }
 
-    .inspector-panel { position: absolute; top: 16px; right: 16px; width: 260px; background: rgba(34, 36, 42, 0.95); backdrop-filter: blur(10px); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); display: none; flex-direction: column; gap: 10px; }
+    .inspector-panel { position: absolute; top: 16px; right: 16px; width: 260px; background: rgba(34, 36, 42, 0.95); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; display: none; flex-direction: column; gap: 10px; }
     .inspector-panel.visible { display: flex; }
     .inspector-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; }
     .inspector-title { font-size: 0.85rem; font-weight: 700; color: #fff; }
@@ -77,12 +90,12 @@
     .prop-label { color: var(--text-muted); }
     .prop-val { font-weight: 600; font-family: monospace; }
 
-    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); z-index: 200; align-items: center; justify-content: center; }
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200; align-items: center; justify-content: center; }
     .modal-backdrop.active { display: flex; }
     .modal-box { background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 8px; width: 540px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
     .modal-box textarea { width: 100%; height: 180px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 4px; color: #fff; padding: 10px; font-family: monospace; font-size: 0.72rem; resize: none; }
 
-    .toast { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1f2937; color: #f9fafb; padding: 10px 18px; border-radius: 6px; border: 1px solid #374151; box-shadow: 0 6px 20px rgba(0,0,0,0.5); font-size: 0.82rem; display: flex; align-items: center; gap: 8px; opacity: 0; pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease; z-index: 100; }
+    .toast { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1f2937; color: #f9fafb; padding: 10px 18px; border-radius: 6px; border: 1px solid #374151; font-size: 0.82rem; opacity: 0; pointer-events: none; transition: 0.2s; z-index: 100; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
     .sync-spinner { animation: spin 1s linear infinite; display: inline-block; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
@@ -94,13 +107,13 @@
     <div class="brand">
       <h1>Solo Woodshop Floor Planner</h1>
       <span class="badge">19' × 28' Studio</span>
-      <span style="font-size: 0.75rem; color: var(--text-muted);">532 sq ft • 240V Ready</span>
     </div>
     <div class="header-actions">
-      <button id="toggleClearanceBtn"><span>🛡️</span> Toggle Infeed/Outfeed</button>
-      <button id="autoLayoutBtn"><span>📐</span> Suggested Layout</button>
-      <button id="githubPushBtn"><span>⚡</span> Push to GitHub</button>
+      <button id="toggleClearanceBtn">🛡️ Toggle Zones</button>
+      <button id="autoLayoutBtn">📐 Suggested Flow</button>
+      <button id="resetPositionsBtn">↺ Reset Canvas</button>
       <button class="primary" id="syncSheetBtn"><span id="syncIcon">🔄</span> Sync from Sheets</button>
+      <button id="githubPushBtn">⚡ Push to GitHub</button>
     </div>
   </header>
 
@@ -112,39 +125,41 @@
       </div>
 
       <div class="panel-content" id="inventoryPanel">
-        <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
-          <div class="section-title" style="margin-bottom: 0;">Equipment on Floor</div>
-          <span style="font-size: 0.72rem; color: var(--text-muted);" id="placedCount">0 placed</span>
-        </div>
-        <div class="tool-list" id="toolListContainer"></div>
-
-        <div style="margin-top: 18px;">
-          <div class="section-title">Quick Add Custom Object</div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px;">
-            <input type="number" id="customW" placeholder="Width (in)" value="36" style="background:var(--bg-card); border:1px solid var(--border-color); color:#fff; padding:6px; border-radius:4px; font-size:0.75rem;">
-            <input type="number" id="customL" placeholder="Length (in)" value="72" style="background:var(--bg-card); border:1px solid var(--border-color); color:#fff; padding:6px; border-radius:4px; font-size:0.75rem;">
+        <div class="scrollable-list">
+          <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div class="section-title" style="margin-bottom: 0;">Equipment on Floor</div>
+            <span style="font-size: 0.72rem; color: var(--text-muted);" id="placedCount">0 placed</span>
           </div>
-          <input type="text" id="customName" placeholder="Item Name" style="width: 100%; background:var(--bg-card); border:1px solid var(--border-color); color:#fff; padding:6px; border-radius:4px; font-size:0.75rem; margin-bottom: 6px;">
-          <button id="addCustomBtn" style="width: 100%; justify-content: center;">+ Add to Shop Floor</button>
+          <div class="tool-list" id="toolListContainer"></div>
+        </div>
+
+        <!-- FLOATING ADD WIDGET -->
+        <div class="floating-add-widget">
+          <div class="section-title" style="color: var(--accent-light); margin-bottom: 6px;">+ Quick Add Object</div>
+          <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+            <input type="number" id="customW" placeholder="Width (in)" value="36" style="width: 50%;">
+            <input type="number" id="customL" placeholder="Length (in)" value="72" style="width: 50%;">
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <input type="text" id="customName" placeholder="Item Name (e.g., Clamp Cart)" style="flex: 1;">
+            <button id="addCustomBtn" class="primary" style="padding: 6px 12px; box-shadow: none;">Add</button>
+          </div>
         </div>
       </div>
 
-      <div class="panel-content" id="settingsPanel" style="display: none;">
+      <div class="panel-content" id="settingsPanel" style="display: none; padding: 14px;">
         <div class="section-title">Shop Perimeter</div>
         <div class="prop-row"><span class="prop-label">Shop Width</span><span class="prop-val">19' 0" (228")</span></div>
         <div class="prop-row"><span class="prop-label">Shop Length</span><span class="prop-val">28' 0" (336")</span></div>
-        <div class="prop-row"><span class="prop-label">Primary Access</span><span class="prop-val">Double Outswing</span></div>
+        <div class="section-title" style="margin-top: 16px;">Live Sheet Source</div>
+        <p style="font-size: 0.72rem; color: var(--text-muted); line-height: 1.4; word-break: break-all; background: var(--bg-card); padding: 8px; border-radius: 4px; border: 1px solid var(--border-color);">
+          Woodshop Wishlist (Google Sheet ID: 1w13zKSX6lhYVByG-GgE0O1-OE7nN3qaA121VpGx7FaI)
+        </p>
         
         <div class="section-title" style="margin-top: 18px;">GitHub Push Token</div>
-        <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 8px;">Stored locally. Used to push code commits directly to GitHub.</p>
         <input type="text" id="ghRepo" value="kwalters595/shop-planner" style="width: 100%; background:var(--bg-card); border:1px solid var(--border-color); color:#fff; padding:6px; border-radius:4px; font-size:0.75rem; margin-bottom: 8px;">
         <input type="password" id="ghToken" placeholder="github_pat_..." style="width: 100%; background:var(--bg-card); border:1px solid var(--border-color); color:#fff; padding:6px; border-radius:4px; font-size:0.75rem; margin-bottom: 10px;">
         <button id="savePatBtn" style="width: 100%; justify-content: center;">💾 Save PAT to Browser</button>
-
-        <div class="section-title" style="margin-top: 16px;">Live Sheet Source</div>
-        <p style="font-size: 0.72rem; color: var(--text-muted); background: var(--bg-card); padding: 8px; border-radius: 4px; border: 1px solid var(--border-color); word-break: break-all;">
-          ID: 1w13zKSX6lhYVByG-GgE0O1-OE7nN3qaA121VpGx7FaI
-        </p>
       </div>
     </aside>
 
@@ -156,7 +171,6 @@
         <div class="legend-row"><div class="legend-box" style="background: var(--storage);"></div><span>Workbenches & Storage</span></div>
         <div class="legend-row"><div class="legend-box" style="background: var(--dust);"></div><span>Dust & Air Infrastructure</span></div>
         <div class="legend-row"><div class="legend-box" style="background: var(--clearance-border); border: 1px dashed #fbbf24;"></div><span>Infeed / Outfeed Envelopes</span></div>
-        <div class="legend-row" style="margin-top: 4px; color: var(--text-muted); font-size: 0.7rem;"><span>Double-click or press <strong>[R]</strong> to rotate</span></div>
       </div>
 
       <div class="inspector-panel" id="inspectorPanel">
@@ -165,10 +179,8 @@
           <button style="padding: 2px 6px; font-size: 0.7rem;" id="closeInspBtn">✕</button>
         </div>
         <div class="prop-row"><span class="prop-label">Dimensions</span><span class="prop-val" id="inspDim">85" × 33"</span></div>
-        <div class="prop-row"><span class="prop-label">Position</span><span class="prop-val" id="inspPos">X: 5' 2", Y: 8' 6"</span></div>
+        <div class="prop-row"><span class="prop-label">Position</span><span class="prop-val" id="inspPos">-</span></div>
         <div class="prop-row"><span class="prop-label">Orientation</span><span class="prop-val" id="inspAngle">0°</span></div>
-        <div class="prop-row"><span class="prop-label">Status</span><span class="prop-val" id="inspStatus">Ready to Buy</span></div>
-        <div class="prop-row"><span class="prop-label">Category</span><span class="prop-val" id="inspCategory">Core Machinery</span></div>
         <div style="display: flex; gap: 6px; margin-top: 8px;">
           <button id="rotateBtn" style="flex:1; justify-content:center;">🔄 Rotate (R)</button>
           <button id="removeBtn" style="flex:1; justify-content:center; color:#f87171;">Remove</button>
@@ -197,38 +209,37 @@
     </div>
   </div>
 
-  <div class="toast" id="toastMessage">
-    <span id="toastIcon">✓</span>
-    <span id="toastText">Synchronized with Google Sheets</span>
-  </div>
+  <div class="toast" id="toastMessage"><span id="toastText"></span></div>
 
   <script>
     const SHOP_WIDTH_IN = 228, SHOP_LENGTH_IN = 336, SHEET_ID = '1w13zKSX6lhYVByG-GgE0O1-OE7nN3qaA121VpGx7FaI';
     const defaultItems = [
-      { id: 'sawstop_pcs', name: 'SawStop 3HP Cabinet Saw', category: 'Core Machinery', w: 85.25, l: 33, x: 66, y: 180, rotation: 0, status: 'Ready to Buy', infeed: 72, outfeed: 96, placed: true },
-      { id: 'outfeed_table', name: 'Integrated Outfeed Table', category: 'Workbench & Storage', w: 85.25, l: 48, x: 66, y: 213, rotation: 0, status: 'Custom Build', placed: true },
-      { id: 'hammer_a3_41', name: 'Hammer A3 41 Jointer/Planer', category: 'Core Machinery', w: 35, l: 76, x: 18, y: 100, rotation: 90, status: 'Ordered!', infeed: 84, outfeed: 84, placed: true },
-      { id: 'bandsaw_14', name: '14" Resaw Bandsaw', category: 'Core Machinery', w: 33.75, l: 25, x: 185, y: 80, rotation: 0, status: 'Buy Used', infeed: 48, outfeed: 48, placed: true },
-      { id: 'dewalt_miter', name: '12" Sliding Miter Station', category: 'Core Machinery', w: 36, l: 150, x: 188, y: 200, rotation: 90, status: 'Buy Used', placed: true },
-      { id: 'cyclone_v3000', name: 'Central 3HP Cyclone', category: 'Dust & PPE Systems', w: 33, l: 33, x: 188, y: 20, rotation: 0, status: 'New', placed: true },
-      { id: 'edge_sander_jet', name: 'JET 6"x89" Edge Sander', category: 'Hand Power Tools', w: 31.5, l: 51.25, x: 18, y: 260, rotation: 0, status: 'Later', placed: true },
-      { id: 'air_compressor', name: 'California Air Quiet Compressor', category: 'Consumables & Assets', w: 17.25, l: 19.2, x: 198, y: 56, rotation: 0, status: 'New', placed: true },
-      { id: 'shelf_1', name: '3x6 ft Storage Shelf #1', category: 'Workbench & Storage', w: 36, l: 72, x: 18, y: 18, rotation: 0, status: 'Already have / Bought', placed: true },
-      { id: 'shelf_2', name: '3x6 ft Storage Shelf #2', category: 'Workbench & Storage', w: 36, l: 72, x: 58, y: 18, rotation: 0, status: 'Already have / Bought', placed: true },
-      { id: 'tool_chest', name: '~2x4 ft Tool Chest', category: 'Workbench & Storage', w: 24, l: 48, x: 100, y: 18, rotation: 0, status: 'Need to buy', placed: true },
-      { id: 'bench_2x5', name: '2x5 ft Primary Heavy Workbench', category: 'Workbench & Storage', w: 24, l: 60, x: 18, y: 175, rotation: 0, status: 'Custom Build', placed: true }
+      { id: 'sawstop_pcs', name: 'SawStop 3HP Cabinet Saw', category: 'Core Machinery', w: 85.25, l: 33, x: 66, y: 180, rotation: 0, infeed: 72, outfeed: 96, placed: true },
+      { id: 'outfeed_table', name: 'Integrated Outfeed Table', category: 'Workbench & Storage', w: 85.25, l: 48, x: 66, y: 213, rotation: 0, placed: true },
+      { id: 'hammer_a3_41', name: 'Hammer A3 41 Jointer/Planer', category: 'Core Machinery', w: 35, l: 76, x: 18, y: 100, rotation: 90, infeed: 84, outfeed: 84, placed: true },
+      { id: 'bandsaw_14', name: '14" Resaw Bandsaw', category: 'Core Machinery', w: 33.75, l: 25, x: 185, y: 80, rotation: 0, infeed: 48, outfeed: 48, placed: true },
+      { id: 'dewalt_miter', name: '12" Sliding Miter Station', category: 'Core Machinery', w: 36, l: 150, x: 188, y: 200, rotation: 90, placed: true },
+      { id: 'cyclone_v3000', name: 'Central 3HP Cyclone', category: 'Dust & Air Infrastructure', w: 33, l: 33, x: 188, y: 20, rotation: 0, placed: true },
+      { id: 'edge_sander_jet', name: 'JET 6"x89" Edge Sander', category: 'Hand Power Tools', w: 31.5, l: 51.25, x: 18, y: 260, rotation: 0, placed: true },
+      { id: 'air_compressor', name: 'California Air Quiet Compressor', category: 'Dust & Air Infrastructure', w: 17.25, l: 19.2, x: 198, y: 56, rotation: 0, placed: true },
+      { id: 'shelf_1', name: '3x6 ft Storage Shelf #1', category: 'Workbench & Storage', w: 36, l: 72, x: 18, y: 18, rotation: 0, placed: true },
+      { id: 'shelf_2', name: '3x6 ft Storage Shelf #2', category: 'Workbench & Storage', w: 36, l: 72, x: 58, y: 18, rotation: 0, placed: true },
+      { id: 'tool_chest', name: '~2x4 ft Tool Chest', category: 'Workbench & Storage', w: 24, l: 48, x: 100, y: 18, rotation: 0, placed: true },
+      { id: 'bench_2x5', name: '2x5 ft Primary Heavy Workbench', category: 'Workbench & Storage', w: 24, l: 60, x: 18, y: 175, rotation: 0, placed: true }
     ];
 
-    let shopItems = JSON.parse(localStorage.getItem('shop_layout_items')) || defaultItems;
+    // Safely load memory
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem('shop_layout_items')); } catch(e) {}
+    let shopItems = (saved && Array.isArray(saved) && saved.length > 0) ? saved : defaultItems;
     function saveLayout() { localStorage.setItem('shop_layout_items', JSON.stringify(shopItems)); }
 
     const canvas = document.getElementById('shopCanvas'), ctx = canvas.getContext('2d'), viewport = document.getElementById('viewport');
     let scale = 1.8, offsetX = 40, offsetY = 40, showClearance = true, selectedItem = null, draggingItem = null, dragStartMouse = {x:0, y:0}, dragStartPos = {x:0, y:0}, isPanning = false, panStart = {x:0, y:0};
 
-    function resizeCanvas() { const rect = viewport.getBoundingClientRect(); canvas.width = rect.width; canvas.height = rect.height; fitToScreen(); }
     function fitToScreen() {
-      const padding = 80;
-      scale = Math.min((canvas.width - padding) / SHOP_WIDTH_IN, (canvas.height - padding) / SHOP_LENGTH_IN);
+      const rect = viewport.getBoundingClientRect(); canvas.width = rect.width; canvas.height = rect.height;
+      scale = Math.min((canvas.width - 80) / SHOP_WIDTH_IN, (canvas.height - 80) / SHOP_LENGTH_IN);
       offsetX = (canvas.width - SHOP_WIDTH_IN * scale) / 2; offsetY = (canvas.height - SHOP_LENGTH_IN * scale) / 2;
       draw();
     }
@@ -240,14 +251,9 @@
       ctx.lineWidth = 0.5; ctx.strokeStyle = '#2b2f3a';
       for (let x = 0; x <= SHOP_WIDTH_IN; x += 12) { ctx.beginPath(); ctx.moveTo(x * scale, 0); ctx.lineTo(x * scale, SHOP_LENGTH_IN * scale); ctx.stroke(); }
       for (let y = 0; y <= SHOP_LENGTH_IN; y += 12) { ctx.beginPath(); ctx.moveTo(0, y * scale); ctx.lineTo(SHOP_WIDTH_IN * scale, y * scale); ctx.stroke(); }
-      ctx.lineWidth = 1; ctx.strokeStyle = '#3d4352';
-      for (let x = 0; x <= SHOP_WIDTH_IN; x += 60) { ctx.beginPath(); ctx.moveTo(x * scale, 0); ctx.lineTo(x * scale, SHOP_LENGTH_IN * scale); ctx.stroke(); }
-      for (let y = 0; y <= SHOP_LENGTH_IN; y += 60) { ctx.beginPath(); ctx.moveTo(0, y * scale); ctx.lineTo(SHOP_WIDTH_IN * scale, y * scale); ctx.stroke(); }
 
       ctx.lineWidth = 6; ctx.strokeStyle = '#64748b'; ctx.strokeRect(0, 0, SHOP_WIDTH_IN * scale, SHOP_LENGTH_IN * scale);
-      const doorW = 72 * scale, doorX = (SHOP_WIDTH_IN * scale / 2) - (doorW / 2);
-      ctx.fillStyle = '#10b981'; ctx.fillRect(doorX, -4, doorW, 8);
-      ctx.fillStyle = '#6ee7b7'; ctx.font = 'bold 10px monospace'; ctx.fillText('OUTSWING SHOP ENTRANCE (6\'0")', doorX + 10, -8);
+      ctx.fillStyle = '#10b981'; ctx.fillRect((SHOP_WIDTH_IN * scale / 2) - (72 * scale / 2), -4, 72 * scale, 8);
 
       if (showClearance) {
         shopItems.forEach(item => {
@@ -255,7 +261,7 @@
           ctx.save();
           const ew = item.rotation % 180 === 0 ? item.w : item.l, el = item.rotation % 180 === 0 ? item.l : item.w;
           ctx.translate((item.x + ew / 2) * scale, (item.y + el / 2) * scale); ctx.rotate((item.rotation * Math.PI) / 180);
-          ctx.fillStyle = 'rgba(251, 191, 36, 0.12)'; ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+          ctx.fillStyle = 'rgba(251, 191, 36, 0.12)'; ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)'; ctx.setLineDash([4, 4]);
           if (item.outfeed) { ctx.fillRect(-item.w*scale/2, item.l*scale/2, item.w*scale, item.outfeed*scale); ctx.strokeRect(-item.w*scale/2, item.l*scale/2, item.w*scale, item.outfeed*scale); }
           if (item.infeed) { ctx.fillRect(-item.w*scale/2, -item.l*scale/2 - item.infeed*scale, item.w*scale, item.infeed*scale); ctx.strokeRect(-item.w*scale/2, -item.l*scale/2 - item.infeed*scale, item.w*scale, item.infeed*scale); }
           ctx.restore();
@@ -267,9 +273,142 @@
         ctx.save();
         const ew = (item.rotation % 180 === 0 ? item.w : item.l) * scale, el = (item.rotation % 180 === 0 ? item.l : item.w) * scale;
         let baseColor = '#3b82f6';
-        if (item.category.includes('Dust')) baseColor = '#ef4444'; else if (item.category.includes('Workbench') || item.category.includes('Storage')) baseColor = '#10b981'; else if (item.category.includes('Hand Power')) baseColor = '#8b5cf6';
+        if (item.category.includes('Dust')) baseColor = '#ef4444'; else if (item.category.includes('Workbench') || item.category.includes('Storage')) baseColor = '#10b981';
         ctx.fillStyle = baseColor; ctx.fillRect(item.x * scale, item.y * scale, ew, el);
-        ctx.strokeStyle = (selectedItem && selectedItem.id === item.id) ? '#fbbf24' : '#1e293b';
-        ctx.lineWidth = (selectedItem && selectedItem.id === item.id) ? 3 : 1.5;
-        ctx.strokeRect(item.x * scale - (selectedItem && selectedItem.id === item.id ? 2 : 0), item.y * scale - (selectedItem && selectedItem.id === item.id ? 2 : 0), ew + (selectedItem && selectedItem.id === item.id ? 4 : 0), el + (selectedItem && selectedItem.id === item.id ? 4 : 0));
-        ctx.fillStyle = 'rgba(255, 255
+        ctx.strokeStyle = (selectedItem && selectedItem.id === item.id) ? '#fbbf24' : '#1e293b'; ctx.lineWidth = (selectedItem && selectedItem.id === item.id) ? 3 : 1.5;
+        ctx.strokeRect(item.x * scale, item.y * scale, ew, el);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px sans-serif'; 
+        ctx.save(); ctx.rect(item.x * scale, item.y * scale, ew, el); ctx.clip();
+        ctx.fillText(item.name, item.x * scale + 6, item.y * scale + 16); ctx.restore();
+        ctx.restore();
+      });
+      ctx.restore();
+    }
+
+    function getCanvasCoords(e) { const rect = canvas.getBoundingClientRect(); return { mouseX: e.clientX - rect.left, mouseY: e.clientY - rect.top, shopX: (e.clientX - rect.left - offsetX) / scale, shopY: (e.clientY - rect.top - offsetY) / scale }; }
+    
+    canvas.addEventListener('mousedown', (e) => {
+      const { mouseX, mouseY, shopX, shopY } = getCanvasCoords(e);
+      const clickedItem = shopItems.slice().reverse().find(i => i.placed && shopX >= i.x && shopX <= i.x + (i.rotation%180===0?i.w:i.l) && shopY >= i.y && shopY <= i.y + (i.rotation%180===0?i.l:i.w));
+      if (e.button === 0) {
+        if (clickedItem) { selectedItem = draggingItem = clickedItem; dragStartMouse = { x: mouseX, y: mouseY }; dragStartPos = { x: clickedItem.x, y: clickedItem.y }; updateInspector(clickedItem); } 
+        else { selectedItem = null; isPanning = true; panStart = { x: mouseX - offsetX, y: mouseY - offsetY }; document.getElementById('inspectorPanel').classList.remove('visible'); }
+      }
+      renderToolList(); draw();
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      const { mouseX, mouseY } = getCanvasCoords(e);
+      if (draggingItem) {
+        const ew = draggingItem.rotation % 180 === 0 ? draggingItem.w : draggingItem.l, el = draggingItem.rotation % 180 === 0 ? draggingItem.l : draggingItem.w;
+        draggingItem.x = Math.max(0, Math.min(Math.round((dragStartPos.x + (mouseX - dragStartMouse.x) / scale) / 2) * 2, SHOP_WIDTH_IN - ew));
+        draggingItem.y = Math.max(0, Math.min(Math.round((dragStartPos.y + (mouseY - dragStartMouse.y) / scale) / 2) * 2, SHOP_LENGTH_IN - el));
+        updateInspector(draggingItem); draw();
+      } else if (isPanning) { offsetX = mouseX - panStart.x; offsetY = mouseY - panStart.y; draw(); }
+    });
+
+    window.addEventListener('mouseup', () => { if(draggingItem) saveLayout(); draggingItem = null; isPanning = false; });
+    window.addEventListener('keydown', (e) => { if ((e.key === 'r' || e.key === 'R') && selectedItem) rotateItem(selectedItem); });
+    canvas.addEventListener('dblclick', (e) => { const { shopX, shopY } = getCanvasCoords(e); const item = shopItems.slice().reverse().find(i => i.placed && shopX >= i.x && shopX <= i.x + (i.rotation%180===0?i.w:i.l) && shopY >= i.y && shopY <= i.y + (i.rotation%180===0?i.l:i.w)); if(item) rotateItem(item); });
+
+    function rotateItem(item) { item.rotation = (item.rotation + 90) % 360; saveLayout(); updateInspector(item); draw(); }
+
+    function updateInspector(item) {
+      document.getElementById('inspectorPanel').classList.add('visible');
+      document.getElementById('inspName').textContent = item.name;
+      document.getElementById('inspDim').textContent = `${item.w}" × ${item.l}"`;
+      document.getElementById('inspPos').textContent = `X: ${Math.floor(item.x / 12)}' ${Math.round(item.x % 12)}", Y: ${Math.floor(item.y / 12)}' ${Math.round(item.y % 12)}"`;
+      document.getElementById('inspAngle').textContent = `${item.rotation}°`;
+    }
+
+    document.getElementById('closeInspBtn').addEventListener('click', () => document.getElementById('inspectorPanel').classList.remove('visible'));
+    document.getElementById('rotateBtn').addEventListener('click', () => { if (selectedItem) rotateItem(selectedItem); });
+    document.getElementById('removeBtn').addEventListener('click', () => { if (selectedItem) { selectedItem.placed = false; selectedItem = null; document.getElementById('inspectorPanel').classList.remove('visible'); renderToolList(); draw(); saveLayout(); }});
+
+    function renderToolList() {
+      const container = document.getElementById('toolListContainer'); container.innerHTML = ''; let placed = 0;
+      shopItems.forEach(item => {
+        if (item.placed) placed++;
+        const card = document.createElement('div'); card.className = `tool-card ${item.placed ? 'on-canvas' : ''}`;
+        card.innerHTML = `<div class="tool-card-head"><span class="tool-title">${item.name}</span><span class="tool-dim">${item.w}" × ${item.l}"</span></div><div class="tool-sub"><span>${item.category}</span></div>`;
+        card.addEventListener('click', () => { if (!item.placed) { item.placed = true; item.x = 80; item.y = 80; } selectedItem = item; updateInspector(item); renderToolList(); draw(); saveLayout(); });
+        container.appendChild(card);
+      });
+      document.getElementById('placedCount').textContent = `${placed} / ${shopItems.length} active`;
+    }
+
+    document.getElementById('tabInventory').addEventListener('click', () => { document.getElementById('tabInventory').classList.add('active'); document.getElementById('tabSettings').classList.remove('active'); document.getElementById('inventoryPanel').style.display = 'flex'; document.getElementById('settingsPanel').style.display = 'none'; });
+    document.getElementById('tabSettings').addEventListener('click', () => { document.getElementById('tabSettings').classList.add('active'); document.getElementById('tabInventory').classList.remove('active'); document.getElementById('settingsPanel').style.display = 'block'; document.getElementById('inventoryPanel').style.display = 'none'; });
+
+    document.getElementById('addCustomBtn').addEventListener('click', () => {
+      const w = parseFloat(document.getElementById('customW').value) || 24, l = parseFloat(document.getElementById('customL').value) || 48, name = document.getElementById('customName').value.trim() || 'Custom Bench';
+      shopItems.push({ id: 'custom_' + Date.now(), name: name, category: 'Workbench & Storage', w: w, l: l, x: 80, y: 80, rotation: 0, placed: true });
+      document.getElementById('customName').value = ''; saveLayout(); renderToolList(); draw(); showToast(`Added "${name}"`);
+    });
+
+    document.getElementById('autoLayoutBtn').addEventListener('click', () => {
+      const applyPos = (id, x, y, rot) => { const i = shopItems.find(i => i.id === id); if (i) { i.x = x; i.y = y; i.rotation = rot; i.placed = true; }};
+      applyPos('sawstop_pcs', 68, 135, 0); applyPos('outfeed_table', 68, 168, 0); applyPos('hammer_a3_41', 12, 85, 90); applyPos('dewalt_miter', 188, 170, 90); applyPos('cyclone_v3000', 186, 16, 0); applyPos('air_compressor', 196, 54, 0); applyPos('bench_2x5', 18, 220, 0); applyPos('bandsaw_14', 185, 100, 0);
+      saveLayout(); showToast('Applied 4-zone layout!'); renderToolList(); draw();
+    });
+
+    document.getElementById('resetPositionsBtn').addEventListener('click', fitToScreen);
+    document.getElementById('toggleClearanceBtn').addEventListener('click', () => { showClearance = !showClearance; draw(); });
+
+    document.getElementById('zoomInBtn').addEventListener('click', () => { scale *= 1.15; draw(); });
+    document.getElementById('zoomOutBtn').addEventListener('click', () => { scale /= 1.15; draw(); });
+    document.getElementById('zoomFitBtn').addEventListener('click', fitToScreen);
+
+    // Google Sheets Sync Logic
+    document.getElementById('syncSheetBtn').addEventListener('click', async () => {
+      document.getElementById('syncIcon').classList.add('sync-spinner'); showToast('Fetching latest from Google Sheets...');
+      try {
+        const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Sheet1`);
+        if (!res.ok) throw new Error('Network error');
+        const lines = (await res.text()).split('\n').filter(l => l.trim().length > 0);
+        for (let i = 1; i < lines.length; i++) {
+          const row = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(s => s.replace(/^"|"$/g, '').trim());
+          const w = parseFloat(row[3]), l = parseFloat(row[4]), name = row[1] || row[2] || 'Tool';
+          if (!isNaN(w) && !isNaN(l) && w > 0 && l > 0) {
+            const match = shopItems.find(t => t.name.toLowerCase() === name.toLowerCase());
+            if (match) { match.w = w; match.l = l; } 
+            else shopItems.push({ id: 'sheet_' + i, name: name, category: row[0] || 'General', w: w, l: l, x: 40 + (i * 10) % 150, y: 60 + (i * 15) % 250, rotation: 0, placed: true });
+          }
+        }
+        saveLayout(); renderToolList(); draw(); showToast('✓ Synced from Google Sheet!');
+      } catch (err) { showToast('⚠ Google Sheet sync offline or blocked'); } 
+      finally { document.getElementById('syncIcon').classList.remove('sync-spinner'); }
+    });
+
+    if (localStorage.getItem('gh_pat')) document.getElementById('ghToken').value = localStorage.getItem('gh_pat');
+    if (localStorage.getItem('gh_repo')) document.getElementById('ghRepo').value = localStorage.getItem('gh_repo');
+    document.getElementById('savePatBtn').onclick = () => { localStorage.setItem('gh_pat', document.getElementById('ghToken').value.trim()); localStorage.setItem('gh_repo', document.getElementById('ghRepo').value.trim()); showToast('✓ PAT saved locally'); };
+
+    const modal = document.getElementById('updateModal');
+    document.getElementById('githubPushBtn').onclick = () => modal.classList.add('active');
+    document.getElementById('closeModalBtn').onclick = () => modal.classList.remove('active');
+    document.getElementById('cancelModalBtn').onclick = () => modal.classList.remove('active');
+
+    document.getElementById('commitToGithubBtn').onclick = async () => {
+      const token = localStorage.getItem('gh_pat'), repo = localStorage.getItem('gh_repo') || 'kwalters595/shop-planner', code = document.getElementById('updateCodeArea').value;
+      if (!token || !code.trim()) return alert('Missing PAT or HTML code.');
+      showToast('Pushing to GitHub...');
+      try {
+        const getUrl = `https://api.github.com/repos/${repo}/contents/index.html`;
+        const res = await fetch(getUrl, { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github.v3+json' }});
+        if (!res.ok) throw new Error(res.statusText);
+        const currentSha = (await res.json()).sha;
+        const utf8Bytes = new TextEncoder().encode(code);
+        let binaryStr = ''; utf8Bytes.forEach(b => binaryStr += String.fromCharCode(b));
+        const putRes = await fetch(getUrl, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: 'Pinned UI & Local Engine', content: btoa(binaryStr), sha: currentSha }) });
+        if (!putRes.ok) throw new Error(putRes.statusText);
+        modal.classList.remove('active'); showToast('🚀 Restored! Refresh in 30s.');
+      } catch (err) { alert('Commit Error: ' + err.message); }
+    };
+
+    function showToast(msg) { const toast = document.getElementById('toastMessage'); document.getElementById('toastText').textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 3200); }
+    window.addEventListener('resize', () => { const rect = viewport.getBoundingClientRect(); canvas.width = rect.width; canvas.height = rect.height; fitToScreen(); });
+    const rect = viewport.getBoundingClientRect(); canvas.width = rect.width; canvas.height = rect.height; fitToScreen(); renderToolList();
+  </script>
+</body>
+</html>

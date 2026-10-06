@@ -5,54 +5,253 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Solo Woodshop Floor Planner (19' x 28')</title>
   <style>
-    /* Minimal Loader Styles */
-    body { background-color: #141518; color: #f3f4f6; font-family: -apple-system, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-    .loader { text-align: center; }
-    .spinner { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #d97706; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    :root {
+      --bg-main: #141518;
+      --bg-panel: #1e2025;
+      --bg-card: #282a30;
+      --border-color: #383c46;
+      --accent: #d97706;
+      --accent-hover: #b45309;
+      --accent-light: #fbbf24;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: -apple-system, sans-serif; }
+    body { background-color: var(--bg-main); color: var(--text); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    header {
+      background-color: var(--bg-panel); border-bottom: 1px solid var(--border-color);
+      padding: 10px 18px; display: flex; align-items: center; justify-content: space-between; z-index: 10;
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand h1 { font-size: 1.05rem; font-weight: 700; color: #fff; }
+    .badge { background: rgba(217, 119, 6, 0.2); color: var(--accent-light); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; border: 1px solid rgba(217, 119, 6, 0.4); }
+
+    .header-actions { display: flex; gap: 8px; }
+    button {
+      background: var(--bg-card); color: var(--text); border: 1px solid var(--border-color);
+      border-radius: 6px; padding: 7px 11px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: 0.15s ease;
+    }
+    button:hover { background: #353842; border-color: #555b68; }
+    button.primary { background: var(--accent); border-color: #f59e0b; color: #fff; }
+    button.primary:hover { background: var(--accent-hover); }
+
+    .app-body { display: flex; flex: 1; height: calc(100vh - 53px); position: relative; }
+    aside.sidebar { width: 330px; background: var(--bg-panel); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; z-index: 5; }
+    .sidebar-tabs { display: flex; border-bottom: 1px solid var(--border-color); }
+    .tab-btn { flex: 1; padding: 10px; font-size: 0.8rem; background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--text-muted); cursor: pointer; }
+    .tab-btn.active { color: var(--accent-light); border-bottom-color: var(--accent); font-weight: 600; }
+    .panel-content { padding: 14px; overflow-y: auto; flex: 1; }
+
+    .section-title { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .tool-list { display: flex; flex-direction: column; gap: 7px; }
+    .tool-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 10px; cursor: pointer; display: flex; flex-direction: column; gap: 3px; }
+    .tool-card.on-canvas { border-left: 3px solid var(--accent); }
+    .tool-title { font-weight: 600; font-size: 0.8rem; color: #fff; }
+    .tool-sub { font-size: 0.7rem; color: var(--text-muted); display: flex; justify-content: space-between; }
+
+    .viewport { flex: 1; overflow: hidden; position: relative; background-color: #101114; display: flex; align-items: center; justify-content: center; }
+    #shopCanvas { box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6); border-radius: 4px; }
+
+    .prop-row { display: flex; justify-content: space-between; font-size: 0.76rem; padding: 4px 0; }
+    .prop-label { color: var(--text-muted); }
+    .prop-val { font-weight: 600; font-family: monospace; }
+
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); z-index: 200; align-items: center; justify-content: center; }
+    .modal-backdrop.active { display: flex; }
+    .modal-box { background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 8px; width: 540px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .modal-box textarea { width: 100%; height: 180px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 4px; color: #fff; padding: 10px; font-family: monospace; font-size: 0.72rem; resize: none; }
+
+    .toast { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1f2937; color: #f9fafb; padding: 9px 16px; border-radius: 6px; border: 1px solid #374151; font-size: 0.8rem; opacity: 0; pointer-events: none; transition: 0.2s; z-index: 100; }
+    .toast.show { opacity: 1; }
   </style>
 </head>
 <body>
 
-  <div class="loader" id="loadingScreen">
-    <div class="spinner"></div>
-    <h2 style="font-size: 1.1rem; margin-bottom: 5px;">Loading Shop Environment...</h2>
-    <p style="font-size: 0.8rem; color: #9ca3af;">Fetching latest engine and layout from Google Sheets</p>
+  <header>
+    <div class="brand">
+      <h1>Woodshop Layout Planner</h1>
+      <span class="badge">19' × 28' Studio</span>
+    </div>
+    <div class="header-actions">
+      <button id="toggleZonesBtn">🛡️ Zones</button>
+      <button id="exportJsonBtn">💾 Backup JSON</button>
+      <button id="githubPushBtn">⚡ Push Code to GitHub</button>
+      <button class="primary" id="syncSheetBtn">🔄 Sync Google Sheet</button>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <aside class="sidebar">
+      <div class="sidebar-tabs">
+        <button class="tab-btn active" id="tabInventory">Inventory</button>
+        <button class="tab-btn" id="tabSettings">Settings & GitHub</button>
+      </div>
+
+      <div class="panel-content" id="inventoryPanel">
+        <div class="section-title">Equipment Placed</div>
+        <div class="tool-list" id="toolListContainer"></div>
+      </div>
+
+      <div class="panel-content" id="settingsPanel" style="display: none;">
+        <div class="section-title">Shop Perimeter</div>
+        <div class="prop-row"><span class="prop-label">Footprint</span><span class="prop-val">19' × 28' (532 sq ft)</span></div>
+        <div class="section-title" style="margin-top: 18px;">GitHub Push Token</div>
+        <input type="text" id="ghRepo" value="kwalters595/shop-planner" style="width: 100%; background:var(--bg-card); border:1px solid var(--border-color); color:#fff; padding:6px; border-radius:4px; font-size:0.75rem; margin-bottom: 8px;">
+        <input type="password" id="ghToken" placeholder="github_pat_..." style="width: 100%; background:var(--bg-card); border:1px solid var(--border-color); color:#fff; padding:6px; border-radius:4px; font-size:0.75rem; margin-bottom: 10px;">
+        <button id="savePatBtn" style="width: 100%; justify-content: center;">💾 Save PAT to Browser</button>
+      </div>
+    </aside>
+
+    <main class="viewport" id="viewport">
+      <canvas id="shopCanvas"></canvas>
+    </main>
   </div>
 
-  <script>
-    // The Sheet Bridge Loader
-    // This fetches the actual application HTML/JS/CSS directly from your Google Sheet
-    const SHEET_ID = '1w13zKSX6lhYVByG-GgE0O1-OE7nN3qaA121VpGx7FaI';
-    const GID_APPCODE = '0'; // We will set up a dedicated _AppCode tab in your sheet
+  <div class="modal-backdrop" id="updateModal">
+    <div class="modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="font-size: 0.95rem; color: #fff;">Push Update to GitHub Repository</h3>
+        <button id="closeModalBtn" style="padding: 2px 6px;">✕</button>
+      </div>
+      <textarea id="updateCodeArea" placeholder="Paste full <html>...</html> code here"></textarea>
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button id="cancelModalBtn">Cancel</button>
+        <button class="primary" id="commitToGithubBtn">🚀 Commit to GitHub</button>
+      </div>
+    </div>
+  </div>
 
-    async function loadAppEngine() {
-      try {
-        // Fetch the raw code from the designated Google Sheet tab
-        const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=_AppCode`);
-        if (!res.ok) throw new Error('Failed to reach Google Sheets API');
-        
-        const csvText = await res.text();
-        
-        // Google Sheets CSV wraps cells in quotes and doubles up internal quotes. 
-        // This cleans the payload back into raw HTML/JS.
-        let rawCode = csvText.replace(/^"|"$/g, '').replace(/""/g, '"');
-        
-        // Inject the fetched application directly into the current browser document
-        document.open();
-        document.write(rawCode);
-        document.close();
-      } catch (error) {
-        document.getElementById('loadingScreen').innerHTML = `
-          <h2 style="color: #ef4444;">Connection Error</h2>
-          <p style="font-size: 0.8rem; color: #9ca3af;">Could not reach Google Sheets to load the app engine.</p>
-          <button onclick="location.reload()" style="margin-top: 15px; padding: 8px 16px; background: #d97706; border: none; color: #fff; border-radius: 4px; cursor: pointer;">Retry Connection</button>
-        `;
-      }
+  <div class="toast" id="toastMessage"></div>
+
+  <script>
+    const SHOP_WIDTH_IN = 228, SHOP_LENGTH_IN = 336, SHEET_ID = '1w13zKSX6lhYVByG-GgE0O1-OE7nN3qaA121VpGx7FaI';
+    const defaultItems = [
+      { id: 'sawstop_pcs', name: 'SawStop 3HP Cabinet Saw', category: 'Core Machinery', w: 85.25, l: 33, x: 66, y: 180, rotation: 0, status: 'Ready to Buy', infeed: 72, outfeed: 96, placed: true },
+      { id: 'outfeed_table', name: 'Maple Outfeed Bench', category: 'Workbench & Storage', w: 85.25, l: 48, x: 66, y: 213, rotation: 0, status: 'Custom Build', placed: true },
+      { id: 'hammer_a3_41', name: 'Hammer A3-41 Jointer/Planer', category: 'Core Machinery', w: 35, l: 76, x: 48, y: 135, rotation: 90, status: 'Ordered!', infeed: 84, outfeed: 84, placed: true },
+      { id: 'bandsaw_14', name: '14" Resaw Bandsaw', category: 'Core Machinery', w: 33.75, l: 25, x: 185, y: 100, rotation: 0, status: 'Buy Used', infeed: 48, outfeed: 48, placed: true },
+      { id: 'dewalt_miter', name: 'Sliding Miter Saw Station', category: 'Core Machinery', w: 36, l: 150, x: 84, y: 295, rotation: 0, status: 'Buy Used', placed: true },
+      { id: 'cyclone_laguna', name: 'Laguna P|Flux 1.5HP Cyclone', category: 'Dust & PPE Systems', w: 25, l: 42, x: 195, y: 20, rotation: 0, status: 'Buy Used', placed: true },
+      { id: 'edge_sander_jet', name: 'JET 6"x89" Edge Sander', category: 'Hand Power Tools', w: 31.5, l: 51.25, x: 75, y: 16, rotation: 0, status: 'Later', placed: true },
+      { id: 'air_compressor', name: 'California Air Quiet Compressor', category: 'Consumables & Assets', w: 17.25, l: 19.2, x: 198, y: 68, rotation: 0, status: 'New', placed: true },
+      { id: 'shelf_1', name: '3x6 ft Storage Shelf #1', category: 'Workbench & Storage', w: 36, l: 72, x: 16, y: 18, rotation: 0, status: 'Already have / Bought', placed: true },
+      { id: 'shelf_2', name: '3x6 ft Storage Shelf #2', category: 'Workbench & Storage', w: 36, l: 72, x: 16, y: 92, rotation: 0, status: 'Already have / Bought', placed: true },
+      { id: 'tool_chest', name: '~2x4 ft Tool Chest', category: 'Workbench & Storage', w: 24, l: 48, x: 18, y: 168, rotation: 0, status: 'Need to buy', placed: true },
+      { id: 'roubo_bench', name: '2x7 ft Roubo Workbench', category: 'Workbench & Storage', w: 24, l: 84, x: 14, y: 245, rotation: 0, status: 'Custom Build', placed: true }
+    ];
+
+    let shopItems = JSON.parse(localStorage.getItem('shop_layout_items')) || defaultItems;
+    function saveLayout() { localStorage.setItem('shop_layout_items', JSON.stringify(shopItems)); }
+
+    const canvas = document.getElementById('shopCanvas'), ctx = canvas.getContext('2d');
+    let scale = 1.8, offsetX = 40, offsetY = 40, showClearance = true, draggingItem = null, dragStart = {x:0, y:0}, itemStart = {x:0, y:0};
+
+    function fitToScreen() {
+      const rect = document.getElementById('viewport').getBoundingClientRect();
+      canvas.width = rect.width; canvas.height = rect.height;
+      scale = Math.min((canvas.width - 60) / SHOP_WIDTH_IN, (canvas.height - 60) / SHOP_LENGTH_IN);
+      offsetX = (canvas.width - SHOP_WIDTH_IN * scale) / 2; offsetY = (canvas.height - SHOP_LENGTH_IN * scale) / 2;
+      draw();
     }
 
-    // Initialize the bridge on load
-    window.onload = loadAppEngine;
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.save(); ctx.translate(offsetX, offsetY);
+      ctx.fillStyle = '#1e2025'; ctx.fillRect(0, 0, SHOP_WIDTH_IN * scale, SHOP_LENGTH_IN * scale);
+      ctx.lineWidth = 4; ctx.strokeStyle = '#64748b'; ctx.strokeRect(0, 0, SHOP_WIDTH_IN * scale, SHOP_LENGTH_IN * scale);
+
+      shopItems.forEach(item => {
+        if (!item.placed) return;
+        const ew = (item.rotation % 180 === 0 ? item.w : item.l) * scale, el = (item.rotation % 180 === 0 ? item.l : item.w) * scale;
+        
+        if (showClearance && (item.infeed || item.outfeed)) {
+          ctx.save(); ctx.translate(item.x * scale + ew/2, item.y * scale + el/2); ctx.rotate(item.rotation * Math.PI / 180);
+          ctx.fillStyle = 'rgba(251, 191, 36, 0.12)'; ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)'; ctx.setLineDash([4, 4]);
+          if (item.outfeed) ctx.fillRect(-item.w*scale/2, item.l*scale/2, item.w*scale, item.outfeed*scale);
+          if (item.infeed) ctx.fillRect(-item.w*scale/2, -item.l*scale/2 - item.infeed*scale, item.w*scale, item.infeed*scale);
+          ctx.restore();
+        }
+
+        ctx.fillStyle = item.category.includes('Dust') ? '#dc2626' : item.category.includes('Workbench') ? '#059669' : '#2563eb';
+        ctx.fillRect(item.x * scale, item.y * scale, ew, el);
+        ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 1.5; ctx.strokeRect(item.x * scale, item.y * scale, ew, el);
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 10px sans-serif'; ctx.fillText(item.name, item.x * scale + 5, item.y * scale + 13);
+      });
+      ctx.restore();
+    }
+
+    canvas.addEventListener('mousedown', e => {
+      const sx = (e.clientX - canvas.getBoundingClientRect().left - offsetX) / scale;
+      const sy = (e.clientY - canvas.getBoundingClientRect().top - offsetY) / scale;
+      draggingItem = shopItems.slice().reverse().find(i => i.placed && sx >= i.x && sx <= i.x + (i.rotation%180===0?i.w:i.l) && sy >= i.y && sy <= i.y + (i.rotation%180===0?i.l:i.w));
+      if (draggingItem) { dragStart = {x: e.clientX, y: e.clientY}; itemStart = {x: draggingItem.x, y: draggingItem.y}; }
+    });
+    window.addEventListener('mousemove', e => {
+      if (!draggingItem) return;
+      let nx = Math.round((itemStart.x + (e.clientX - dragStart.x)/scale)/2)*2;
+      let ny = Math.round((itemStart.y + (e.clientY - dragStart.y)/scale)/2)*2;
+      draggingItem.x = Math.max(0, Math.min(nx, SHOP_WIDTH_IN - (draggingItem.rotation%180===0?draggingItem.w:draggingItem.l)));
+      draggingItem.y = Math.max(0, Math.min(ny, SHOP_LENGTH_IN - (draggingItem.rotation%180===0?draggingItem.l:draggingItem.w)));
+      draw();
+    });
+    window.addEventListener('mouseup', () => { if (draggingItem) saveLayout(); draggingItem = null; });
+    canvas.addEventListener('dblclick', e => {
+      const sx = (e.clientX - canvas.getBoundingClientRect().left - offsetX) / scale, sy = (e.clientY - canvas.getBoundingClientRect().top - offsetY) / scale;
+      const item = shopItems.find(i => i.placed && sx >= i.x && sx <= i.x + (i.rotation%180===0?i.w:i.l) && sy >= i.y && sy <= i.y + (i.rotation%180===0?i.l:i.w));
+      if (item) { item.rotation = (item.rotation + 90) % 360; saveLayout(); draw(); }
+    });
+
+    function renderToolList() {
+      const c = document.getElementById('toolListContainer'); c.innerHTML = '';
+      shopItems.forEach(i => {
+        if(!i.placed) return;
+        const d = document.createElement('div'); d.className = 'tool-card';
+        d.innerHTML = `<div class="tool-title">${i.name}</div><div class="tool-sub"><span>${i.category}</span></div>`;
+        c.appendChild(d);
+      });
+    }
+
+    document.getElementById('tabInventory').onclick = () => { document.getElementById('inventoryPanel').style.display='block'; document.getElementById('settingsPanel').style.display='none'; document.getElementById('tabInventory').classList.add('active'); document.getElementById('tabSettings').classList.remove('active'); };
+    document.getElementById('tabSettings').onclick = () => { document.getElementById('inventoryPanel').style.display='none'; document.getElementById('settingsPanel').style.display='block'; document.getElementById('tabSettings').classList.add('active'); document.getElementById('tabInventory').classList.remove('active'); };
+
+    if (localStorage.getItem('gh_pat')) document.getElementById('ghToken').value = localStorage.getItem('gh_pat');
+    if (localStorage.getItem('gh_repo')) document.getElementById('ghRepo').value = localStorage.getItem('gh_repo');
+    document.getElementById('savePatBtn').onclick = () => { localStorage.setItem('gh_pat', document.getElementById('ghToken').value.trim()); localStorage.setItem('gh_repo', document.getElementById('ghRepo').value.trim()); showToast('✓ PAT saved locally'); };
+
+    const modal = document.getElementById('updateModal');
+    document.getElementById('githubPushBtn').onclick = () => modal.classList.add('active');
+    document.getElementById('closeModalBtn').onclick = () => modal.classList.remove('active');
+    document.getElementById('cancelModalBtn').onclick = () => modal.classList.remove('active');
+
+    document.getElementById('commitToGithubBtn').onclick = async () => {
+      const token = localStorage.getItem('gh_pat'), repo = localStorage.getItem('gh_repo') || 'kwalters595/shop-planner', code = document.getElementById('updateCodeArea').value;
+      if (!token || !code.trim()) return alert('Missing PAT or HTML code.');
+      showToast('Pushing to GitHub...');
+      try {
+        const getUrl = `https://api.github.com/repos/${repo}/contents/index.html`;
+        const res = await fetch(getUrl, { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github.v3+json' }});
+        if (!res.ok) throw new Error(res.statusText);
+        const currentSha = (await res.json()).sha;
+        
+        const utf8Bytes = new TextEncoder().encode(code);
+        let binaryStr = ''; utf8Bytes.forEach(b => binaryStr += String.fromCharCode(b));
+        const putRes = await fetch(getUrl, {
+          method: 'PUT',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: 'Restoring robust modal app', content: btoa(binaryStr), sha: currentSha })
+        });
+        if (!putRes.ok) throw new Error(putRes.statusText);
+        modal.classList.remove('active');
+        showToast('🚀 Restored! Refresh in 30s.');
+      } catch (err) { alert('Commit Error: ' + err.message); }
+    };
+
+    document.getElementById('toggleZonesBtn').onclick = () => { showClearance = !showClearance; draw(); };
+    
+    function showToast(msg) { const t = document.getElementById('toastMessage'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3500); }
+    window.addEventListener('resize', fitToScreen); fitToScreen(); renderToolList();
   </script>
 </body>
 </html>

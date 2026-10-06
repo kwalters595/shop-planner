@@ -5,322 +5,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Solo Woodshop Floor Planner (19' x 28')</title>
   <style>
-    :root {
-      --bg-main: #141518;
-      --bg-panel: #1e2025;
-      --bg-card: #282a30;
-      --border-color: #383c46;
-      --accent: #d97706;
-      --accent-hover: #b45309;
-      --accent-light: #fbbf24;
-      --text: #f3f4f6;
-      --text-muted: #9ca3af;
-      --machinery: #2563eb;
-      --storage: #059669;
-      --dust: #dc2626;
-      --clearance: rgba(251, 191, 36, 0.15);
-      --clearance-border: rgba(251, 191, 36, 0.45);
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg-main); color: var(--text); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-
-    header {
-      background-color: var(--bg-panel);
-      border-bottom: 1px solid var(--border-color);
-      padding: 10px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      z-index: 10;
-    }
-
-    .brand { display: flex; align-items: center; gap: 10px; }
-    .brand h1 { font-size: 1.05rem; font-weight: 700; color: #fff; }
-    .badge { background: rgba(217, 119, 6, 0.2); color: var(--accent-light); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; border: 1px solid rgba(217, 119, 6, 0.4); }
-
-    .header-actions { display: flex; align-items: center; gap: 8px; }
-    button {
-      background: var(--bg-card); color: var(--text); border: 1px solid var(--border-color);
-      border-radius: 6px; padding: 7px 11px; font-size: 0.8rem; font-weight: 600; cursor: pointer;
-      display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s ease;
-    }
-    button:hover { background: #353842; border-color: #555b68; }
-    button.primary { background: var(--accent); border-color: #f59e0b; color: #fff; }
-    button.primary:hover { background: var(--accent-hover); }
-
-    .app-body { display: flex; flex: 1; height: calc(100vh - 53px); position: relative; }
-    aside.sidebar { width: 330px; background: var(--bg-panel); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; flex-shrink: 0; }
-    .sidebar-tabs { display: flex; border-bottom: 1px solid var(--border-color); }
-    .tab-btn { flex: 1; padding: 10px; font-size: 0.8rem; text-align: center; background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--text-muted); cursor: pointer; }
-    .tab-btn.active { color: var(--accent-light); border-bottom-color: var(--accent); font-weight: 600; }
-    .panel-content { padding: 14px; overflow-y: auto; flex: 1; }
-
-    .section-title { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 8px; }
-    .tool-list { display: flex; flex-direction: column; gap: 7px; }
-    .tool-card {
-      background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px;
-      padding: 8px 10px; cursor: pointer; display: flex; flex-direction: column; gap: 3px;
-    }
-    .tool-card:hover { border-color: var(--accent); }
-    .tool-card.on-canvas { border-left: 3px solid var(--accent); }
-    .tool-card-head { display: flex; justify-content: space-between; align-items: center; }
-    .tool-title { font-weight: 600; font-size: 0.8rem; color: #fff; }
-    .tool-dim { font-size: 0.74rem; color: var(--text-muted); font-family: monospace; }
-    .tool-sub { font-size: 0.7rem; color: var(--text-muted); display: flex; justify-content: space-between; }
-
-    .viewport { flex: 1; overflow: hidden; position: relative; background-color: #101114; display: flex; align-items: center; justify-content: center; }
-    #shopCanvas { box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6); border-radius: 4px; }
-
-    .prop-row { display: flex; justify-content: space-between; font-size: 0.76rem; padding: 4px 0; }
-    .prop-label { color: var(--text-muted); }
-    .prop-val { font-weight: 600; font-family: monospace; }
-
-    /* Modal Overlay */
-    .modal-backdrop {
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(4px); z-index: 200; align-items: center; justify-content: center;
-    }
-    .modal-backdrop.active { display: flex; }
-    .modal-box {
-      background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 8px;
-      width: 520px; max-width: 90vw; padding: 20px; display: flex; flex-direction: column; gap: 12px;
-    }
-    .modal-box textarea {
-      width: 100%; height: 160px; background: var(--bg-main); border: 1px solid var(--border-color);
-      border-radius: 4px; color: #fff; padding: 10px; font-family: monospace; font-size: 0.74rem; resize: none;
-    }
-
-    .toast {
-      position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
-      background: #1f2937; color: #f9fafb; padding: 9px 16px; border-radius: 6px;
-      border: 1px solid #374151; font-size: 0.8rem; opacity: 0; pointer-events: none;
-      transition: opacity 0.2s ease; z-index: 100;
-    }
-    .toast.show { opacity: 1; }
+    /* Minimal Loader Styles */
+    body { background-color: #141518; color: #f3f4f6; font-family: -apple-system, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+    .loader { text-align: center; }
+    .spinner { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #d97706; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="brand">
-      <h1>Woodshop Layout Planner</h1>
-      <span class="badge">19' × 28' Studio</span>
-    </div>
-    <div class="header-actions">
-      <button id="toggleZonesBtn">🛡️ Zones</button>
-      <button id="exportJsonBtn">💾 Backup JSON</button>
-      <button id="importJsonBtn">📂 Restore</button>
-      <button id="githubPushBtn">⚡ Push Code to GitHub</button>
-      <button class="primary" id="syncSheetBtn">🔄 Sync Google Sheet</button>
-    </div>
-  </header>
-
-  <div class="app-body">
-    <aside class="sidebar">
-      <div class="sidebar-tabs">
-        <button class="tab-btn active" id="tabInventory">Inventory</button>
-        <button class="tab-btn" id="tabSettings">Settings & GitHub</button>
-      </div>
-
-      <div class="panel-content" id="inventoryPanel">
-        <div class="section-title">Equipment Placed</div>
-        <div class="tool-list" id="toolListContainer"></div>
-      </div>
-
-      <div class="panel-content" id="settingsPanel" style="display: none;">
-        <div class="section-title">Shop Perimeter</div>
-        <div class="prop-row"><span class="prop-label">Footprint</span><span class="prop-val">19' × 28' (532 sq ft)</span></div>
-        <div class="prop-row"><span class="prop-label">Primary Entry</span><span class="prop-val">Double Outswing (North)</span></div>
-
-        <div class="section-title" style="margin-top: 18px;">GitHub Personal Access Token (PAT)</div>
-        <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 8px;">
-          Stored locally in your browser. Used to push code commits directly to GitHub without manual editing.
-        </p>
-        <label style="font-size: 0.7rem; color: var(--text-muted);">Repository (user/repo)</label>
-        <input type="text" id="ghRepo" value="kwalters595/shop-planner" style="width: 100%; background:var(--bg-card); border:1px solid var(--border-color); color:#fff; padding:6px; border-radius:4px; font-size:0.75rem; margin-bottom: 8px;">
-        
-        <label style="font-size: 0.7rem; color: var(--text-muted);">Personal Access Token</label>
-        <input type="password" id="ghToken" placeholder="github_pat_..." style="width: 100%; background:var(--bg-card); border:1px solid var(--border-color); color:#fff; padding:6px; border-radius:4px; font-size:0.75rem; margin-bottom: 10px;">
-        <button id="savePatBtn" style="width: 100%; justify-content: center;">💾 Save PAT to Browser</button>
-      </div>
-    </aside>
-
-    <main class="viewport" id="viewport">
-      <canvas id="shopCanvas"></canvas>
-    </main>
+  <div class="loader" id="loadingScreen">
+    <div class="spinner"></div>
+    <h2 style="font-size: 1.1rem; margin-bottom: 5px;">Loading Shop Environment...</h2>
+    <p style="font-size: 0.8rem; color: #9ca3af;">Fetching latest engine and layout from Google Sheets</p>
   </div>
-
-  <!-- In-Browser GitHub Code Committer Modal -->
-  <div class="modal-backdrop" id="updateModal">
-    <div class="modal-box">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3 style="font-size: 0.95rem; color: #fff;">Push Update to GitHub Repository</h3>
-        <button id="closeModalBtn" style="padding: 2px 6px;">✕</button>
-      </div>
-      <p style="font-size: 0.75rem; color: var(--text-muted);">
-        Paste the new HTML code below. The app will commit it directly to your GitHub repository using your saved PAT.
-      </p>
-      <textarea id="updateCodeArea" placeholder="Paste full <html>...</html> code here"></textarea>
-      <div style="display: flex; justify-content: flex-end; gap: 8px;">
-        <button id="cancelModalBtn">Cancel</button>
-        <button class="primary" id="commitToGithubBtn">🚀 Commit to GitHub</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="toast" id="toastMessage"></div>
 
   <script>
-    const SHOP_WIDTH_IN = 228;
-    const SHOP_LENGTH_IN = 336;
+    // The Sheet Bridge Loader
+    // This fetches the actual application HTML/JS/CSS directly from your Google Sheet
     const SHEET_ID = '1w13zKSX6lhYVByG-GgE0O1-OE7nN3qaA121VpGx7FaI';
+    const GID_APPCODE = '0'; // We will set up a dedicated _AppCode tab in your sheet
 
-    // Baseline layout
-    let shopItems = [
-      { id: 'sawstop', name: 'SawStop 3HP Cabinet Saw', category: 'Core Machinery', w: 85.25, l: 33, x: 66, y: 180, rotation: 0, status: 'Ready to Buy', placed: true },
-      { id: 'outfeed', name: 'Maple Outfeed Bench', category: 'Work Surfaces', w: 85.25, l: 48, x: 66, y: 213, rotation: 0, status: 'Custom Build', placed: true },
-      { id: 'hammer', name: 'Hammer A3-41 Jointer/Planer', category: 'Core Machinery', w: 35, l: 76, x: 48, y: 135, rotation: 90, status: 'Ordered!', placed: true },
-      { id: 'cyclone', name: 'Laguna P|Flux 1.5HP Cyclone', category: 'Dust & PPE Systems', w: 25, l: 42, x: 195, y: 20, rotation: 0, status: 'Buy Used', placed: true }
-    ];
-
-    const canvas = document.getElementById('shopCanvas');
-    const ctx = canvas.getContext('2d');
-    let scale = 1.8, offsetX = 40, offsetY = 40;
-
-    function resizeCanvas() {
-      const rect = document.getElementById('viewport').getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = rect.height;
-      scale = Math.min((canvas.width - 60) / SHOP_WIDTH_IN, (canvas.height - 60) / SHOP_LENGTH_IN);
-      offsetX = (canvas.width - SHOP_WIDTH_IN * scale) / 2;
-      offsetY = (canvas.height - SHOP_LENGTH_IN * scale) / 2;
-      draw();
-    }
-
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.save();
-      ctx.translate(offsetX, offsetY);
-
-      ctx.fillStyle = '#1e2025';
-      ctx.fillRect(0, 0, SHOP_WIDTH_IN * scale, SHOP_LENGTH_IN * scale);
-      ctx.strokeStyle = '#64748b';
-      ctx.lineWidth = 4;
-      ctx.strokeRect(0, 0, SHOP_WIDTH_IN * scale, SHOP_LENGTH_IN * scale);
-
-      shopItems.forEach(item => {
-        if (!item.placed) return;
-        const w = (item.rotation % 180 === 0 ? item.w : item.l) * scale;
-        const l = (item.rotation % 180 === 0 ? item.l : item.w) * scale;
-        ctx.fillStyle = '#2563eb';
-        ctx.fillRect(item.x * scale, item.y * scale, w, l);
-        ctx.strokeStyle = '#0f172a';
-        ctx.strokeRect(item.x * scale, item.y * scale, w, l);
-        ctx.fillStyle = '#fff';
-        ctx.font = '10px sans-serif';
-        ctx.fillText(item.name, item.x * scale + 6, item.y * scale + 14);
-      });
-      ctx.restore();
-    }
-
-    // Tab Switching
-    document.getElementById('tabInventory').onclick = () => {
-      document.getElementById('inventoryPanel').style.display = 'block';
-      document.getElementById('settingsPanel').style.display = 'none';
-      document.getElementById('tabInventory').classList.add('active');
-      document.getElementById('tabSettings').classList.remove('active');
-    };
-    document.getElementById('tabSettings').onclick = () => {
-      document.getElementById('inventoryPanel').style.display = 'none';
-      document.getElementById('settingsPanel').style.display = 'block';
-      document.getElementById('tabSettings').classList.add('active');
-      document.getElementById('tabInventory').classList.remove('active');
-    };
-
-    // GitHub PAT Local Storage Management
-    const ghTokenInput = document.getElementById('ghToken');
-    const ghRepoInput = document.getElementById('ghRepo');
-    if (localStorage.getItem('gh_pat')) ghTokenInput.value = localStorage.getItem('gh_pat');
-    if (localStorage.getItem('gh_repo')) ghRepoInput.value = localStorage.getItem('gh_repo');
-
-    document.getElementById('savePatBtn').onclick = () => {
-      localStorage.setItem('gh_pat', ghTokenInput.value.trim());
-      localStorage.setItem('gh_repo', ghRepoInput.value.trim());
-      showToast('✓ Token saved locally in browser');
-    };
-
-    // Modal & Direct GitHub REST API Commit Handler
-    const updateModal = document.getElementById('updateModal');
-    document.getElementById('githubPushBtn').onclick = () => updateModal.classList.add('active');
-    document.getElementById('closeModalBtn').onclick = () => updateModal.classList.remove('active');
-    document.getElementById('cancelModalBtn').onclick = () => updateModal.classList.remove('active');
-
-    document.getElementById('commitToGithubBtn').onclick = async () => {
-      const token = localStorage.getItem('gh_pat');
-      const repo = localStorage.getItem('gh_repo') || 'kwalters595/shop-planner';
-      const code = document.getElementById('updateCodeArea').value;
-
-      if (!token) {
-        alert('Please save your GitHub Personal Access Token in the Settings tab first.');
-        return;
-      }
-      if (!code.trim()) {
-        alert('Please paste the updated HTML code into the box.');
-        return;
-      }
-
-      showToast('Connecting to GitHub API...');
-
+    async function loadAppEngine() {
       try {
-        // 1. Fetch current file SHA from GitHub
-        const getUrl = `https://api.github.com/repos/${repo}/contents/index.html`;
-        const res = await fetch(getUrl, {
-          headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github.v3+json' }
-        });
-        if (!res.ok) throw new Error(`Could not access repo: ${res.statusText}`);
-        const data = await res.json();
-        const currentSha = data.sha;
-
-        // 2. Base64 encode the new code and commit via PUT
-        const utf8Bytes = new TextEncoder().encode(code);
-        let binaryStr = '';
-        utf8Bytes.forEach(b => binaryStr += String.fromCharCode(b));
-        const base64Code = btoa(binaryStr);
-
-        const putRes = await fetch(getUrl, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            message: 'Direct in-browser floor planner update',
-            content: base64Code,
-            sha: currentSha
-          })
-        });
-
-        if (!putRes.ok) throw new Error(`Failed to commit: ${putRes.statusText}`);
-
-        updateModal.classList.remove('active');
-        showToast('🚀 Pushed update directly to GitHub! Deploying now...');
-      } catch (err) {
-        alert('GitHub Commit Error: ' + err.message);
+        // Fetch the raw code from the designated Google Sheet tab
+        const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=_AppCode`);
+        if (!res.ok) throw new Error('Failed to reach Google Sheets API');
+        
+        const csvText = await res.text();
+        
+        // Google Sheets CSV wraps cells in quotes and doubles up internal quotes. 
+        // This cleans the payload back into raw HTML/JS.
+        let rawCode = csvText.replace(/^"|"$/g, '').replace(/""/g, '"');
+        
+        // Inject the fetched application directly into the current browser document
+        document.open();
+        document.write(rawCode);
+        document.close();
+      } catch (error) {
+        document.getElementById('loadingScreen').innerHTML = `
+          <h2 style="color: #ef4444;">Connection Error</h2>
+          <p style="font-size: 0.8rem; color: #9ca3af;">Could not reach Google Sheets to load the app engine.</p>
+          <button onclick="location.reload()" style="margin-top: 15px; padding: 8px 16px; background: #d97706; border: none; color: #fff; border-radius: 4px; cursor: pointer;">Retry Connection</button>
+        `;
       }
-    };
-
-    function showToast(msg) {
-      const t = document.getElementById('toastMessage');
-      t.textContent = msg;
-      t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 3500);
     }
 
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    // Initialize the bridge on load
+    window.onload = loadAppEngine;
   </script>
 </body>
 </html>
